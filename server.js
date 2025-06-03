@@ -12,42 +12,43 @@ const newsletterRoutes = require('./routes/newsletterRoutes');
 const subscriptionRoutes = require('./routes/subscriptionRoutes');
 const testimonialRoutes = require('./routes/testimonialRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
-
-
-
-
-
-
-
-
+const testRoutes = require('./routes/testRoutes');
+const errorHandler = require('./middlewares/errorHandler'); // ✅ ne pas doubler !
 
 dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use('/api/utilisatrices', userRoutes); //utilisateur
-app.use('/api/products', productRoutes); //produits
-app.use('/api/cart', cartRoutes); //panier
-app.use('/api/orders', orderRoutes); //commandes
-app.use('/api/order-details', orderDetailsRoutes); //detail commandes
-app.use('/api/addresses', addressRoutes); //adresses
-app.use('/api/newsletter', newsletterRoutes); //newsletter
-app.use('/api/subscriptions', subscriptionRoutes); //Abonnement Rhéa
-app.use('/api/testimonials', testimonialRoutes); //Avis Rhéa
-app.use('/api/payment', paymentRoutes); //paiement
 
-
-
-
-
+app.use('/api/utilisatrices', userRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/order-details', orderDetailsRoutes);
+app.use('/api/addresses', addressRoutes);
+app.use('/api/newsletter', newsletterRoutes);
+app.use('/api/subscriptions', subscriptionRoutes);
+app.use('/api/testimonials', testimonialRoutes);
+app.use('/api/payment', paymentRoutes);
+app.use('/api/test', testRoutes);
 
 app.get('/', (req, res) => res.send('API Rhéa Drinks connectée'));
 
+// ✅ Gestion des routes non trouvées (404)
+app.use((req, res, next) => {
+  const error = new Error(`Route introuvable : ${req.originalUrl}`);
+  error.statusCode = 404;
+  next(error);
+});
+
+// ✅ Middleware global d'erreur
+app.use(errorHandler);
+
 db.connect((err) => {
   if (err) {
-    console.error(' Erreur de connexion à MySQL:', err.message);
+    console.error('❌ Erreur de connexion à MySQL:', err.message);
   } else {
-    console.log('Connecté à MySQL');
+    console.log('✅ Connecté à MySQL');
   }
 });
 
