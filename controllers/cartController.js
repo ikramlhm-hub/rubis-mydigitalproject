@@ -1,32 +1,12 @@
 const db = require('../config/db');
 
-// Créer un panier (si aucun actif n'existe pour l'utilisateur)
+// Créer un panier anonyme (tu génères l’id côté front)
 exports.createCart = (req, res) => {
-  const { userId } = req.body;
-
-  db.query(
-    'SELECT * FROM panier WHERE id_utilisatrice = ? AND statut = "actif"',
-    [userId],
-    (err, results) => {
-      if (err) return res.status(500).json({ error: err.message });
-
-      if (results.length > 0) {
-        return res.status(200).json({ message: 'Cart already exists', cart: results[0] });
-      }
-
-      db.query(
-        'INSERT INTO panier (id_utilisatrice) VALUES (?)',
-        [userId],
-        (err, result) => {
-          if (err) return res.status(500).json({ error: err.message });
-          res.status(201).json({ message: 'Cart created', cartId: result.insertId });
-        }
-      );
-    }
-  );
+  // Si tu veux stocker les paniers dans la BDD, sinon laisse le front gérer en localStorage
+  res.status(201).json({ message: "Cart created" });
 };
 
-// Ajouter un produit dans le panier
+// Ajouter un produit dans le panier (cartId est fourni par le front, donc pas besoin de userId ici)
 exports.addToCart = (req, res) => {
   const { cartId, productId, quantity, unitPrice } = req.body;
   const subtotal = quantity * unitPrice;
@@ -82,6 +62,35 @@ exports.clearCart = (req, res) => {
     (err) => {
       if (err) return res.status(500).json({ error: err.message });
       res.json({ message: 'Cart cleared' });
+    }
+  );
+};
+
+// Valider le panier (nécessite authentification, appelle cette route via POST /api/cart/validate)
+exports.validateCart = (req, res) => {
+  // Cette route doit être protégée par authenticate sur le routeur !
+  const { cartId } = req.body;
+  const userId = req.user.id; // récupéré via le middleware authenticate
+
+  // 1. Vérifier que le panier existe et qu'il a des items
+  db.query(
+    `SELECT * FROM detail_panier WHERE id_panier = ?`,
+    [cartId],
+    (err, details) => {
+      if (err) return res.status(500).json({ error: err.message });
+      if (details.length === 0) return res.status(400).json({ error: "Panier vide !" });
+
+      // 2. Créer la commande dans la table commande
+      db.query(
+        `INSERT INTO commande (id_utilisatrice, id_panier, date_commande, statut)
+         VALUES (?, ?, NOW(), "en_attente")`,
+        [userId, cartId],
+        (err, result) => {
+          if (err) return res.status(500).json({ error: err.message });
+          // (optionnel) ici tu pourrais vider le panier, changer le statut, etc.
+          res.status(201).json({ message: "Commande créée !", orderId: result.insertId });
+        }
+      );
     }
   );
 };

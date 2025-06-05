@@ -61,9 +61,7 @@ exports.createCheckoutSession = async (req, res) => {
   }
 };
 
-// ================================
-// ✅ Nouvelle fonction ajoutée ici
-// ================================
+// fonction
 exports.confirmPayment = (req, res) => {
   const { id_commande } = req.body;
 

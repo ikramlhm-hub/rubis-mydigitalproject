@@ -28,9 +28,9 @@ exports.register = async (req, res) => {
 
           try {
             await sendNewsletterConfirmation(email, prenom);
-            console.log(`✅ Email de bienvenue envoyé à ${email}`);
+            console.log(`Email de bienvenue envoyé à ${email}`);
           } catch (error) {
-            console.error('❌ Erreur lors de l’envoi de l’e-mail de confirmation :', error.message);
+            console.error(' Erreur lors de l’envoi de l’e-mail de confirmation :', error.message);
           }
 
           res.status(201).json({ message: 'Compte créé avec succès.', id: result.insertId });
@@ -130,8 +130,8 @@ exports.updateNewsletter = (req, res) => {
             if (!err && results.length > 0) {
               const { email, prenom } = results[0];
               sendNewsletterConfirmation(email, prenom)
-                .then(() => console.log(`✅ Email de bienvenue envoyé à ${email}`))
-                .catch((err) => console.error('❌ Erreur d’envoi de mail :', err));
+                .then(() => console.log(`Email de bienvenue envoyé à ${email}`))
+                .catch((err) => console.error(' Erreur d’envoi de mail :', err));
             }
           }
         );

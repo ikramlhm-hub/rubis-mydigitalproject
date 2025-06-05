@@ -13,7 +13,9 @@ const subscriptionRoutes = require('./routes/subscriptionRoutes');
 const testimonialRoutes = require('./routes/testimonialRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const testRoutes = require('./routes/testRoutes');
-const errorHandler = require('./middlewares/errorHandler'); // ✅ ne pas doubler !
+const errorHandler = require('./middlewares/errorHandler');
+
+
 
 dotenv.config();
 const app = express();
