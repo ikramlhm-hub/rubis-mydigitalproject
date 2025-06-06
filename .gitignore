@@ -1,13 +1,9 @@
-# Global ignores
 node_modules/
-*.log
-.env
-.DS_Store
-
-# Spécifiques
 backend/node_modules/
 frontend/node_modules/
+.env
 backend/.env
 frontend/.env
-.expo/
 .idea/
+.expo/
+*.log
